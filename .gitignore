@@ -105,3 +105,4 @@ dist
 
 .idea
 /src/assets/thumb/
+/.vscode
