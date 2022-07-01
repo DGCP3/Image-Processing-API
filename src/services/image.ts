@@ -12,8 +12,8 @@ export default class ImageHandler {
 	static async flip(file: Buffer, direction: boolean | undefined) {
 		return await sharp(file).flip(direction).toBuffer()
 	}
-	static async toFile<T extends keyof FormatEnum>(buffer: Buffer, filePath: string, format: T = 'jpeg' as T) {
-		return await sharp(buffer).toFormat(format, { lossless: true }).toFile(filePath)
+	static async toFile(buffer: Buffer, filePath: string) {
+		return await sharp(buffer).toFile(filePath)
 	}
 	static async blur(file: Buffer, sigma?: number) {
 		return await sharp(file).blur(sigma).toBuffer()
@@ -23,5 +23,8 @@ export default class ImageHandler {
 	}
 	static async metadata(file: string) {
 		return await sharp(file).metadata()
+	}
+	static async toFormat<T extends keyof FormatEnum>(file: Buffer, format: T = 'jpg' as T) {
+		return await sharp(file).toFormat(format).toBuffer()
 	}
 }
