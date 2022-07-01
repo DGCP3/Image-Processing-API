@@ -9,11 +9,9 @@ export async function processImg(req: RequestWithMetadata, res: Response, next: 
 	let imgBuffer = fs.readFileSync(`./src/assets/images/${filename}`)
 
 	if (width && height) imgBuffer = await ImageHandler.resize(imgBuffer, Number(width), Number(height))
-	// other image processing
 	if (blur) imgBuffer = await ImageHandler.blur(imgBuffer)
 	if (sharpen) imgBuffer = await ImageHandler.sharpen(imgBuffer)
-	// @ts-ignore
-	if (format) imgBuffer = await ImageHandler.toFormat(imgBuffer, format)
+	if (format) imgBuffer = await ImageHandler.toFormat(imgBuffer, format as 'jpg' | 'png' | 'webp' | 'gif' | 'jpeg')
 
 	req.imgBuffer = imgBuffer
 	next()
@@ -34,7 +32,7 @@ export function getImgMetaData(path: string) {
 export function fileExist(filepath: string, fileType: string[]) {
 	return (req: Request, res: Response, next: NextFunction) => {
 		const { filename } = req.query
-		let exist: boolean = false
+		let exist = false
 		for (const type of fileType) {
 			if (fs.existsSync(filepath + filename + type)) {
 				req.query.filename += type
