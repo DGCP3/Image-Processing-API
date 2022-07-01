@@ -3,7 +3,6 @@ import path from 'path'
 import fs from 'fs'
 import { RequestWithMetadata } from '../types/express'
 import ImageHandler from '../services/image'
-import { FormatEnum } from 'sharp'
 
 export async function processImg(req: RequestWithMetadata, res: Response, next: NextFunction) {
 	const { filename, width, height, blur, sharpen, format } = req.query
@@ -13,12 +12,8 @@ export async function processImg(req: RequestWithMetadata, res: Response, next: 
 	// other image processing
 	if (blur) imgBuffer = await ImageHandler.blur(imgBuffer)
 	if (sharpen) imgBuffer = await ImageHandler.sharpen(imgBuffer)
-	if (format)
-		await ImageHandler.toFile(
-			imgBuffer,
-			`./src/assets/thumb/${width}x${height}/${filename}`,
-			format as keyof FormatEnum,
-		)
+	// @ts-ignore
+	if (format) imgBuffer = await ImageHandler.toFormat(imgBuffer, format)
 
 	req.imgBuffer = imgBuffer
 	next()
@@ -48,7 +43,7 @@ export function fileExist(filepath: string, fileType: string[]) {
 			}
 		}
 		if (!exist) {
-			res.send('Sorry, File not found')
+			res.status(404).send('Sorry, File not found')
 			return
 		}
 		next()
@@ -56,9 +51,16 @@ export function fileExist(filepath: string, fileType: string[]) {
 }
 
 export function checkProcessedImg(req: Request, res: Response, next: NextFunction) {
-	const { filename, width, height } = req.query
-	if (fs.existsSync(`./src/assets/thumb/${width}x${height}/${filename}`)) {
-		res.sendFile(path.join(__dirname, `../assets/thumb/${width}x${height}/${filename}`))
+	const { filename, width, height, format } = req.query
+	if (
+		fs.existsSync(`./src/assets/thumb/${width}x${height}/$${filename?.toString().split('.')[0]}.${format ?? 'jpg'}`)
+	) {
+		res.sendFile(
+			path.join(
+				__dirname,
+				`../assets/thumb/${width}x${height}/${filename?.toString().split('.')[0]}.${format ?? 'jpg'}`,
+			),
+		)
 		return
 	}
 	next()
@@ -71,10 +73,18 @@ export function makeDir(req: Request, res: Response, next: NextFunction) {
 	next()
 }
 
-export function noQuery(req: Request, res: Response, next: NextFunction) {
-	if (Object.keys(req.query).length < 3) {
-		res.sendFile(path.join(__dirname, `../assets/images/${req.query.filename}`))
-		return
+export function checkQuery(fileFormat: string[]) {
+	return (req: Request, res: Response, next: NextFunction) => {
+		if (Object.keys(req.query).length < 3) {
+			res.sendFile(path.join(__dirname, `../assets/images/${req.query.filename}`))
+			return
+		}
+		if (req.query.format)
+			if (!fileFormat.includes(`.${req.query?.format}`)) {
+				res.status(400).send({ error: 'Unsupported format' })
+				return
+			}
+
+		next()
 	}
-	next()
 }
