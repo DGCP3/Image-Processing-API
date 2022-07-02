@@ -42,7 +42,6 @@ describe('Image route', () => {
 			})
 			.expect('Content-Type', /png/)
 	})
-	// write a test for the middleware
 	it('should return 400 if format is unsupported', async () => {
 		await request(testApp)
 			.get('/images')

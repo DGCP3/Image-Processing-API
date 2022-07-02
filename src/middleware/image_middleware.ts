@@ -3,18 +3,24 @@ import path from 'path'
 import fs from 'fs'
 import { RequestWithMetadata } from '../types/express'
 import ImageHandler from '../services/image'
+import { FormatEnum } from 'sharp'
 
 export async function processImg(req: RequestWithMetadata, res: Response, next: NextFunction) {
-	const { filename, width, height, blur, sharpen, format } = req.query
-	let imgBuffer = fs.readFileSync(`./src/assets/images/${filename}`)
+	try {
+		const { filename, width, height, blur, sharpen, format } = req.query
+		let imgBuffer = fs.readFileSync(`./src/assets/images/${filename}`)
+		if (!imgBuffer) throw new Error('File not found')
 
-	if (width && height) imgBuffer = await ImageHandler.resize(imgBuffer, Number(width), Number(height))
-	if (blur) imgBuffer = await ImageHandler.blur(imgBuffer)
-	if (sharpen) imgBuffer = await ImageHandler.sharpen(imgBuffer)
-	if (format) imgBuffer = await ImageHandler.toFormat(imgBuffer, format as 'jpg' | 'png' | 'webp' | 'gif' | 'jpeg')
+		if (width && height) imgBuffer = await ImageHandler.resize(imgBuffer, Number(width), Number(height))
+		if (blur) imgBuffer = await ImageHandler.blur(imgBuffer)
+		if (sharpen) imgBuffer = await ImageHandler.sharpen(imgBuffer)
+		if (format) imgBuffer = await ImageHandler.toFormat(imgBuffer, format as keyof FormatEnum)
 
-	req.imgBuffer = imgBuffer
-	next()
+		req.imgBuffer = imgBuffer
+		next()
+	} catch (err) {
+		next(err)
+	}
 }
 
 export function getImgMetaData(path: string) {

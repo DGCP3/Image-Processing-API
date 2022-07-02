@@ -24,7 +24,7 @@ export default class ImageHandler {
 	static async metadata(file: string): Promise<sharp.Metadata> {
 		return await sharp(file).metadata()
 	}
-	static async toFormat<T extends keyof FormatEnum>(file: Buffer, format: T = 'jpg' as T): Promise<Buffer> {
+	static async toFormat(file: Buffer, format: keyof FormatEnum = 'jpeg'): Promise<Buffer> {
 		return await sharp(file).toFormat(format).toBuffer()
 	}
 }
