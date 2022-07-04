@@ -2,9 +2,7 @@ import sharp, { FormatEnum } from 'sharp'
 
 export default class ImageHandler {
 	static async resize(file: Buffer, width: number, height: number): Promise<Buffer> {
-		return await sharp(file)
-			.resize(width as number, height as number)
-			.toBuffer()
+		return await sharp(file).resize(width, height).toBuffer()
 	}
 	static async rotate(file: Buffer, angle: number | undefined): Promise<Buffer> {
 		return await sharp(file).rotate(angle).toBuffer()
