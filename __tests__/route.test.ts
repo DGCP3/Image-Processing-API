@@ -20,7 +20,10 @@ describe('Image route', () => {
 				width: '300',
 				height: '300',
 			})
-			.expect(404)
+			.expect(500)
+			.expect((res) => {
+				expect(res.text).toMatch(/Sorry, File not found/g)
+			})
 	})
 	it('should return a correct Content type header', async () => {
 		//jepg is the default format
