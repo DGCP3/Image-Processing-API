@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import ImageHandler from '../services/image'
+import ImageHandler from '../services/imageService'
 import { RequestWithMetadata } from '../types/express'
 
 export const serveImg = (path: string) => async (req: RequestWithMetadata, res: Response) => {

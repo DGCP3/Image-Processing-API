@@ -1,1 +1,1 @@
-export * from './image_middleware'
+export * from './imageMiddleware'
