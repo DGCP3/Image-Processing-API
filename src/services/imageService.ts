@@ -2,16 +2,16 @@ import sharp, { FormatEnum } from 'sharp'
 
 export default class ImageHandler {
 	static async resize(file: Buffer, width: number, height: number): Promise<Buffer> {
-		return await sharp(file).resize(width, height).toBuffer()
+		return await sharp(file).withMetadata().resize(width, height).toBuffer()
 	}
 	static async rotate(file: Buffer, angle: number | undefined): Promise<Buffer> {
-		return await sharp(file).rotate(angle).toBuffer()
+		return await sharp(file).withMetadata().rotate(angle).toBuffer()
 	}
 	static async flip(file: Buffer, direction: boolean | undefined): Promise<Buffer> {
-		return await sharp(file).flip(direction).toBuffer()
+		return await sharp(file).withMetadata().flip(direction).toBuffer()
 	}
 	static async toFile(buffer: Buffer, filePath: string): Promise<sharp.OutputInfo> {
-		return await sharp(buffer).toFile(filePath)
+		return await sharp(buffer).withMetadata().toFile(filePath)
 	}
 	static async blur(file: Buffer, sigma?: number): Promise<Buffer> {
 		return await sharp(file).blur(sigma).toBuffer()
