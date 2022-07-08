@@ -5,7 +5,7 @@ import { RequestWithMetadata } from '../types/express'
 import ImageHandler from '../services/imageService'
 import { FormatEnum } from 'sharp'
 
-export async function processImg(req: RequestWithMetadata, res: Response, next: NextFunction) {
+export async function processImg(req: RequestWithMetadata, res: Response, next: NextFunction): Promise<void> {
 	try {
 		const { filename, width, height, blur, sharpen, format } = req.query
 		let imgBuffer = fs.readFileSync(`./src/assets/images/${filename}`)
@@ -23,7 +23,9 @@ export async function processImg(req: RequestWithMetadata, res: Response, next: 
 	}
 }
 
-export function getImgMetaData(path: string) {
+export function getImgMetaData(
+	path: string,
+): (req: RequestWithMetadata, res: Response, next: NextFunction) => Promise<void> {
 	return async (req: RequestWithMetadata, res: Response, next: NextFunction) => {
 		const { filename, width, height } = req.query
 		const filePath = `${path}${width}x${height}/${filename}`
@@ -35,7 +37,10 @@ export function getImgMetaData(path: string) {
 	}
 }
 
-export function fileExist(filepath: string, fileType: string[]) {
+export function fileExist(
+	filepath: string,
+	fileType: string[],
+): (req: Request, res: Response, next: NextFunction) => void {
 	return (req: Request, res: Response, next: NextFunction) => {
 		const { filename } = req.query
 		let exist = false
@@ -54,7 +59,7 @@ export function fileExist(filepath: string, fileType: string[]) {
 	}
 }
 
-export function checkProcessedImg(req: Request, res: Response, next: NextFunction) {
+export function checkProcessedImg(req: Request, res: Response, next: NextFunction): void {
 	const { filename, width, height, format } = req.query
 	if (fs.existsSync(`./src/assets/thumb/${width}x${height}/${filename?.toString().split('.')[0]}.${format ?? 'jpg'}`)) {
 		res.sendFile(
@@ -69,14 +74,14 @@ export function checkProcessedImg(req: Request, res: Response, next: NextFunctio
 	next()
 }
 
-export function makeDir(req: Request, res: Response, next: NextFunction) {
+export function makeDir(req: Request, res: Response, next: NextFunction): void {
 	const { width, height } = req.query
 	const directory = `./src/assets/thumb/${width}x${height}`
 	fs.existsSync(directory) || fs.mkdirSync(directory, { recursive: true })
 	next()
 }
 
-export function checkQuery(fileFormat: string[]) {
+export function checkQuery(fileFormat: string[]): (req: Request, res: Response, next: NextFunction) => void {
 	return (req: Request, res: Response, next: NextFunction) => {
 		if (Object.keys(req.query).length < 3) {
 			res.sendFile(path.join(__dirname, `../assets/images/${req.query.filename}`))
