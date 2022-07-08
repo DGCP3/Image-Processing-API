@@ -85,7 +85,6 @@ export function checkQuery(fileFormat: string[]): (req: Request, res: Response, 
 	return (req: Request, res: Response, next: NextFunction) => {
 		if (Object.keys(req.query).length < 3) {
 			res.sendFile(path.join(__dirname, `../assets/images/${req.query.filename}`))
-			console.log(req.query.filename)
 			return
 		}
 		if (req.query.format && !fileFormat.includes(`.${req.query?.format}`)) {
